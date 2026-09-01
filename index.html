@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#e9eeea" />
+    <meta name="description" content="合成四连，一款轻松有趣的物理合成 H5 小游戏。" />
+    <title>合成四连</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="合成四连首页">
+          <span class="brand-mark" aria-hidden="true">四</span>
+          <span>
+            <strong>合成四连</strong>
+            <small>落子 · 相合 · 成连</small>
+          </span>
+        </a>
+        <div class="top-actions">
+          <button class="icon-button" id="sound-button" type="button" aria-label="关闭音效" data-tooltip="关闭音效">
+            <i data-lucide="volume-2" aria-hidden="true"></i>
+          </button>
+          <button class="icon-button" id="restart-button" type="button" aria-label="重新开始" data-tooltip="重新开始">
+            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <main class="game-layout">
+        <section class="play-column" aria-label="游戏区域">
+          <div class="score-strip" aria-label="游戏得分">
+            <div>
+              <span>本局</span>
+              <strong id="score">0</strong>
+            </div>
+            <div class="next-piece" aria-label="下一枚棋子">
+              <span>下一枚</span>
+              <b id="next-token">一连</b>
+            </div>
+            <div>
+              <span>最佳</span>
+              <strong id="best-score">0</strong>
+            </div>
+          </div>
+
+          <div class="board-frame" id="board-frame">
+            <canvas id="game-canvas" width="420" height="620" aria-label="合成四连游戏棋盘"></canvas>
+            <div class="goal-stamp" aria-label="目标四连">
+              <span>目标</span>
+              <b>四连</b>
+            </div>
+            <div class="drop-cursor" id="drop-cursor" aria-hidden="true"></div>
+          </div>
+        </section>
+
+        <aside class="side-panel" aria-label="游戏进度">
+          <section class="mission-band">
+            <div class="section-heading">
+              <span class="eyebrow">本局目标</span>
+              <h2>合成出「四连」</h2>
+            </div>
+            <div class="progress-track" aria-label="四连合成进度">
+              <span id="progress-bar"></span>
+            </div>
+            <p><strong id="highest-label">一连</strong><span>当前最高</span></p>
+          </section>
+
+          <section class="collection-band">
+            <div class="section-heading compact">
+              <span class="eyebrow">合成次序</span>
+              <h2>十二阶连谱</h2>
+            </div>
+            <ol class="token-grid" id="token-grid" aria-label="棋子图鉴"></ol>
+          </section>
+
+          <div class="status-note" id="status-note" aria-live="polite">
+            <span class="status-dot"></span>
+            <span>等待落子</span>
+          </div>
+        </aside>
+      </main>
+
+      <div class="dialog-backdrop" id="result-dialog" hidden>
+        <section class="result-dialog" role="dialog" aria-modal="true" aria-labelledby="result-title">
+          <div class="result-seal" id="result-seal" aria-hidden="true">四</div>
+          <span class="eyebrow" id="result-eyebrow">合成成功</span>
+          <h2 id="result-title">四连达成</h2>
+          <p id="result-copy">十二连相合，终成四连。完整棋谱已经点亮。</p>
+          <div class="result-score"><span>本局得分</span><strong id="result-score">0</strong></div>
+          <div class="dialog-actions">
+            <button class="secondary-button" id="dialog-restart" type="button">再来一局</button>
+            <button class="primary-button" id="continue-button" type="button">留在棋局</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "hecheng-silian",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide": "^0.468.0",
+    "matter-js": "^0.20.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.5"
+  }
+}
