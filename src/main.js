@@ -11,6 +11,7 @@ const WIDTH = 420;
 const HEIGHT = 620;
 const FLOOR_Y = 607;
 const DANGER_Y = 112;
+const DANGER_GRACE_MS = 5000;
 const WIN_LEVEL = 11;
 const DROP_DELAY = 520;
 const PHYSICS_STEP = 1000 / 60;
@@ -23,6 +24,7 @@ const COLORS = [
   "#8e5549", "#c74332",
 ];
 const VERIFY_FINAL_MERGE = import.meta.env.DEV && new URLSearchParams(window.location.search).has("verify-final");
+const VERIFY_DANGER = import.meta.env.DEV && new URLSearchParams(window.location.search).has("verify-danger");
 
 const canvas = document.querySelector("#game-canvas");
 const ctx = canvas.getContext("2d");
@@ -237,24 +239,28 @@ function status(message, danger = false) {
 }
 
 function checkDanger(now) {
-  if (paused || gameOver || !canDrop) {
+  if (paused || gameOver) {
     dangerStartedAt = 0;
+    boardFrame.classList.remove("danger-flash");
     return;
   }
   const dangerBodies = Composite.allBodies(engine.world).filter((body) => {
     if (!body.plugin.gameBall || body.plugin.merging) return false;
-    const age = now - body.plugin.bornAt;
-    return age > 1700 && body.position.y - RADII[body.plugin.level] < DANGER_Y && body.speed < 1.15;
+    const radius = RADII[body.plugin.level];
+    return body.position.y - radius <= DANGER_Y;
   });
 
   if (dangerBodies.length) {
     if (!dangerStartedAt) dangerStartedAt = now;
-    const remaining = Math.max(0, 3 - Math.floor((now - dangerStartedAt) / 1000));
-    status(`棋盘将满 · ${remaining}`, true);
-    if (now - dangerStartedAt > 2700) endGame();
+    const elapsed = now - dangerStartedAt;
+    const remaining = Math.max(0, Math.ceil((DANGER_GRACE_MS - elapsed) / 1000));
+    boardFrame.classList.add("danger-flash");
+    status(`红线预警 · ${remaining}s`, true);
+    if (elapsed > DANGER_GRACE_MS) endGame();
   } else {
     if (dangerStartedAt) status("空间恢复");
     dangerStartedAt = 0;
+    boardFrame.classList.remove("danger-flash");
   }
 }
 
@@ -410,8 +416,12 @@ function drawBoard() {
 
   ctx.save();
   ctx.setLineDash([7, 7]);
-  ctx.lineWidth = 1.2;
-  ctx.strokeStyle = dangerStartedAt ? "rgba(199, 67, 50, 0.9)" : "rgba(199, 67, 50, 0.38)";
+  const dangerPulse = dangerStartedAt ? 0.56 + 0.44 * ((Math.sin(performance.now() / 170) + 1) / 2) : 0;
+  ctx.lineDashOffset = dangerStartedAt ? -((performance.now() / 28) % 14) : 0;
+  ctx.lineWidth = dangerStartedAt ? 1.2 + dangerPulse * 1.35 : 1.2;
+  ctx.strokeStyle = dangerStartedAt
+    ? `rgba(199, 67, 50, ${0.35 + dangerPulse * 0.6})`
+    : "rgba(199, 67, 50, 0.38)";
   ctx.beginPath();
   ctx.moveTo(0, DANGER_Y);
   ctx.lineTo(WIDTH, DANGER_Y);
@@ -638,5 +648,10 @@ if (VERIFY_FINAL_MERGE) {
   const mergeY = FLOOR_Y - RADII[penultimateLevel] - 8;
   makeBall(WIDTH / 2 - 72, mergeY, penultimateLevel, { velocity: { x: 0.8, y: 0 } });
   makeBall(WIDTH / 2 + 72, mergeY, penultimateLevel, { velocity: { x: -0.8, y: 0 } });
+}
+if (VERIFY_DANGER) {
+  const dangerLevel = 0;
+  const dangerBody = makeBall(WIDTH / 2, DANGER_Y + RADII[dangerLevel] - 0.5, dangerLevel);
+  Body.setStatic(dangerBody, true);
 }
 requestAnimationFrame(loop);
